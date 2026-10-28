@@ -13,7 +13,7 @@
 :root[data-design=B]{--bg:#0b1730;--card:rgba(255,255,255,.09);--inner:rgba(255,255,255,.13);--text:#eaf1ff;--sub:#a9bad8;--line:rgba(255,255,255,.12);--acc:#7fb4ff;--on:#0b1730;--seg:rgba(255,255,255,.12);--btn:linear-gradient(135deg,#5f8bff,#7ee0d6);--btnt:#07132b;--glow:rgba(110,180,255,.45);color-scheme:dark}
 :root[data-design=C]{--bg:#cfe0bd;--card:rgba(255,251,242,.82);--inner:#fffaf0;--text:#2f3a2c;--sub:#66745f;--line:rgba(50,70,40,.14);--acc:#6f8a5d;--on:#fff;--seg:rgba(80,100,60,.14);--btn:#53703f;--btnt:#fff;--glow:rgba(83,112,63,.3)}
 :root[data-design=C] h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:36px}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bgimg) center/cover no-repeat}
+body::before{content:"";position:fixed;inset:0 0 -120px 0;z-index:-1;background:var(--bgimg) center/cover no-repeat}
 .top{display:flex;justify-content:flex-end;gap:10px;margin-top:calc(env(safe-area-inset-top) + 10px);position:relative}
 .rund{width:38px;height:38px;border:0;border-radius:50%;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--text);font-size:18px;cursor:pointer;box-shadow:0 1px 0 var(--line) inset}
 .pop{position:absolute;right:0;top:46px;width:min(290px,100%);background:var(--bg);border-radius:18px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);z-index:5;border:1px solid var(--line)}
@@ -39,8 +39,16 @@ h2{font-size:13px;font-weight:400;text-transform:uppercase;color:var(--sub);marg
 .kopfz .wert{margin-left:auto;color:var(--sub);font-size:15px;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kopfz .pf{color:var(--sub);font-size:20px;transition:transform .25s;flex:none}
 .sek.offen .pf{transform:rotate(90deg)}
-.inhalt{display:none;padding:0 14px 16px}
-.sek.offen .inhalt{display:block;animation:ein .25s ease}
+.inhalt{display:grid;grid-template-rows:0fr;opacity:0;padding:0 14px;transition:grid-template-rows .45s cubic-bezier(.3,.7,.2,1),opacity .35s ease,padding .45s ease}
+.sek.offen .inhalt{grid-template-rows:1fr;opacity:1;padding:0 14px 16px}
+.inhalt>.w{overflow:hidden;min-height:0}
+.sek,.chip,.vchip,.seg button,.pill,.dopt,.rund{transition:background-color .3s ease,color .3s ease,box-shadow .3s ease,transform .2s ease}
+.chip:active,.vchip:active,.pill:active,.rund:active,.dopt:active{transform:scale(.96)}
+.pop:not([hidden]){animation:ein .25s ease}
+.vor:not([hidden]){animation:ein .3s ease}
+.item{animation:ein .3s ease}
+.start button{transition:transform .15s ease,opacity .3s}
+.start button:active{transform:scale(.97)}
 @keyframes ein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .sub{font-size:14px;color:var(--sub);margin:0 0 12px;text-align:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -81,10 +89,10 @@ h2.kopf label{display:flex;align-items:center;gap:8px;text-transform:uppercase}
 .start{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 12px)}
 .start button{display:block;width:100%;max-width:560px;margin:0 auto;border:0;border-radius:28px;background:var(--btn);box-shadow:0 8px 24px var(--glow);color:var(--btnt);font:inherit;font-size:17px;font-weight:600;padding:15px;cursor:pointer}
 .start button:disabled{opacity:.4}
-#spieler{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;padding:calc(env(safe-area-inset-top) + 24px) 32px calc(env(safe-area-inset-bottom) + 40px);transition:background 1s}
-#spieler.an{display:flex}
+#spieler{position:fixed;inset:0 0 -120px 0;display:flex;opacity:0;visibility:hidden;pointer-events:none;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;padding:calc(env(safe-area-inset-top) + 24px) 32px calc(env(safe-area-inset-bottom) + 160px);transition:background 1s,opacity .7s ease,visibility .7s}
+#spieler.an{opacity:1;visibility:visible;pointer-events:auto}
 #zeit{opacity:.7;font-variant-numeric:tabular-nums;font-size:15px;z-index:1}
-#satz{white-space:pre-line;font:600 30px/1.25 ui-rounded,-apple-system,sans-serif;text-align:center;transition:opacity .8s;z-index:1;min-height:3em;display:flex;align-items:center}
+#satz{white-space:pre-line;transition:opacity .9s ease,transform .9s ease,filter .9s ease;font:600 30px/1.25 ui-rounded,-apple-system,sans-serif;text-align:center;z-index:1;min-height:3em;display:flex;align-items:center}
 #kreis{position:absolute;left:50%;top:50%;width:320px;height:320px;margin:-160px;border-radius:50%;background:rgba(255,255,255,.08);transform:scale(.8)}
 #atemwort{position:absolute;left:0;right:0;top:calc(50% + 190px);text-align:center;color:rgba(255,255,255,.55);font-size:15px;letter-spacing:.08em;text-transform:uppercase;z-index:1}
 .knoepfe{display:flex;gap:48px;z-index:1}
@@ -163,6 +171,7 @@ function zusammen(){
   $("w_stimme").textContent=PAK[E.stimme]?PAK[E.stimme].n:"";
   $("w_atem").textContent=ATEM[E.atem][0];
 }
+document.querySelectorAll(".inhalt").forEach(i=>{const w=document.createElement("div");w.className="w";while(i.firstChild)w.append(i.firstChild);i.append(w)});
 document.querySelectorAll(".kopfz").forEach(k=>k.onclick=()=>{const sek=k.parentElement,auf=!sek.classList.contains("offen");document.querySelectorAll(".sek").forEach(x=>x.classList.remove("offen"));if(auf)sek.classList.add("offen")});
 function seg(id,eintraege,aktiv,setze){
   const el=$(id);el.innerHTML="";
@@ -216,6 +225,7 @@ document.addEventListener("pointerdown",e=>{if(!e.target.closest("#vorschlaege,.
 zeichneEigene();
 
 // ---------- Design und Name (kleine Fenster oben) ----------
+const nameKlingt=()=>{const n=normName(E.name||"");return !!(n&&PAK[E.stimme]&&PAK[E.stimme].ni&&PAK[E.stimme].ni[fnv(n+".")])};
 const normName=s=>s.trim().replace(/\s+/g," ").toLowerCase().replace(/(^|[\s-])(\S)/g,(m,a,b)=>a+b.toUpperCase());
 const SZENEN={
 A:'<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d9d0"/><stop offset=".45" stop-color="#dcd3f2"/><stop offset="1" stop-color="#bfd9e6"/></linearGradient></defs><rect width="300" height="620" fill="url(#g)"/><circle cx="215" cy="120" r="46" fill="#fff3e2" opacity=".85"/><path d="M0 470 L70 380 L130 450 L200 350 L300 460 V620H0Z" fill="#b9bfe3" opacity=".7"/><path d="M0 520 L90 440 L170 510 L240 430 L300 500 V620H0Z" fill="#9fb0d9" opacity=".75"/><path d="M0 570 Q80 520 160 560 T300 545 V620H0Z" fill="#8ea3cf"/>',
@@ -238,7 +248,7 @@ function nameInfo(){
   const n=normName(E.name||"");
   $("lead").textContent=n?"Hallo, "+n:"Dein Moment der Ruhe";
   const ok=n&&PAK[E.stimme]&&PAK[E.stimme].ni&&PAK[E.stimme].ni[fnv(n+".")];
-  $("nhint").textContent=!n?"Wird in den Affirmationen angesprochen.":ok?"Wird von der natürlichen Stimme gesprochen.":"Diesen Namen spricht die Systemstimme.";
+  $("nhint").textContent=!n?"Wird in den Affirmationen angesprochen.":ok?"Wird von der Stimme gesprochen.":"Diesen Namen kann die Stimme nicht sprechen. Er wird weggelassen.";
 }
 $("name").value=E.name||"";
 $("name").oninput=e=>{E.name=e.target.value;speichern();nameInfo()};
@@ -418,12 +428,13 @@ function sprich(t,my,istName){
     if(nat){
       const s=ctx.createBufferSource();s.buffer=nat;s.connect(sprechBus);
       s.onended=()=>{aktuellerClip=null;res()};aktuellerClip=s;s.start();
-    }else if("speechSynthesis" in window){
+    }else if(istName){res()}
+    else if("speechSynthesis" in window){
       const u=new SpeechSynthesisUtterance(t);u.lang="de-DE";u.rate=schlafModus()?0.8:0.88;u.pitch=0.95;
       const vs=speechSynthesis.getVoices();
       const v=vs.find(v=>v.lang.toLowerCase().startsWith("de"));
       if(v)u.voice=v;
-      u.onend=u.onerror=()=>res();speechSynthesis.speak(u);
+      let fertig=false;const tm=setTimeout(()=>ab(),Math.max(3000,t.length*130));const ab=()=>{if(!fertig){fertig=true;clearTimeout(tm);res()}};u.onend=u.onerror=ab;speechSynthesis.speak(u);
     }else res();
   });
 }
@@ -431,21 +442,26 @@ function sprich(t,my,istName){
 // ---------- Sitzung (jedes Mal anders) ----------
 let lauf=null;
 const warte=ms=>new Promise(r=>setTimeout(r,ms));
+async function satzZeigen(t){
+  const el=$("satz");el.style.opacity=0;el.style.transform="translateY(10px)";el.style.filter="blur(6px)";
+  await warte(650);el.textContent=t;void el.offsetWidth;
+  el.style.transform="none";el.style.filter="none";el.style.opacity=1;
+}
 async function sitzung(){
   const my=lauf={stop:false,pause:false,rest:E.dauer*60};
   const schlaf=schlafModus(),ende=()=>my.stop,sec=()=>my.rest;
-  const tempo=zw(0.85,1.25),nm=normName(E.name||""),PERS=TEXTE.persoenlich;
+  const tempo=zw(0.85,1.25),nm=nameKlingt()?normName(E.name):"",PERS=TEXTE.persoenlich;
   const pause=(schlaf?12:(E.dauer<=10?6:8))*tempo;
   async function w(s){for(let r=s;r>0&&!ende();r-=0.2){await warte(200);if(!my.pause){my.rest-=0.2;if(my.rest<=0)return}}}
   async function zeile(t,p){
     if(ende())return;
-    $("satz").style.opacity=0;await warte(300);$("satz").textContent=t;$("satz").style.opacity=1;
+    await satzZeigen(t);
     pegel(0.4,0.8);await sprich(t,my);pegel(0.8,0.8);await w(p);
   }
   async function zeileTeile(teile,p){
     if(ende())return;
     let txt="";teile.forEach((x,i)=>{if(x==="{n}"){txt=txt.replace(/,?\s*$/,i?", ":"")+nm+(i<teile.length-1?". ":".")}else txt+=(txt&&!/\s$/.test(txt)?" ":"")+x});
-    $("satz").style.opacity=0;await warte(300);$("satz").textContent=txt.trim();$("satz").style.opacity=1;
+    await satzZeigen(txt.trim());
     pegel(0.4,0.8);
     for(let i=0;i<teile.length&&!ende();i++){await sprich(teile[i]==="{n}"?nm:teile[i],my,teile[i]==="{n}");if(i<teile.length-1)await warte(280)}
     pegel(0.8,0.8);await w(p);
@@ -525,6 +541,7 @@ async function starten(){
   if(!saetze().length)return;
   // Alles Wichtige direkt im Tipp (iPhone sperrt sonst Sprache und Ton):
   audioStart();stillerTon();
+  if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}
   try{const q=ctx.createBufferSource();q.buffer=ctx.createBuffer(1,1,22050);q.connect(ctx.destination);q.start(0)}catch(e){}
   const erstes=E.themen[0]||"selbstvertrauen";
   $("spieler").style.background=`linear-gradient(${THEMEN[erstes].f.join(",")})`;
