@@ -542,7 +542,6 @@ async function starten(){
   if(!saetze().length)return;
   // Alles Wichtige direkt im Tipp (iPhone sperrt sonst Sprache und Ton):
   audioStart();stillerTon();
-  if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}
   try{const q=ctx.createBufferSource();q.buffer=ctx.createBuffer(1,1,22050);q.connect(ctx.destination);q.start(0)}catch(e){}
   const erstes=E.themen[0]||"selbstvertrauen";
   $("spieler").style.background=`linear-gradient(${THEMEN[erstes].f.join(",")})`;
