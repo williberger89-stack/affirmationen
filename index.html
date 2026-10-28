@@ -22,11 +22,17 @@ h2{font-size:13px;font-weight:400;text-transform:uppercase;color:var(--sub);marg
 .chip.on{background:var(--acc);color:#fff}
 .chip span:first-child{font-size:18px}
 .seg{display:flex;background:var(--seg);border-radius:9px;padding:2px;gap:2px}
-.seg button{flex:1;border:0;background:none;color:var(--text);font:inherit;font-size:14px;padding:7px 0;border-radius:7px;cursor:pointer}
+.seg button{flex:1;border:0;background:none;color:var(--text);font:inherit;font-size:13px;padding:7px 0;border-radius:7px;cursor:pointer;white-space:nowrap}
 .seg button.on{background:var(--card);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
 textarea{width:100%;border:0;background:var(--card);color:var(--text);font:inherit;padding:12px 16px;min-height:96px;resize:vertical;outline:none;display:block}
 select{width:100%;border:0;background:var(--card);color:var(--text);font:inherit;padding:12px 16px;outline:none;-webkit-appearance:none;appearance:none}
 .hint{font-size:13px;color:var(--sub);margin:6px 16px 0}
+.zeile{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;gap:12px}
+.zeile small{display:block;color:var(--sub);font-size:13px}
+.sw{-webkit-appearance:none;appearance:none;width:51px;height:31px;border-radius:16px;background:var(--seg);position:relative;transition:background .2s;flex:none;margin:0;cursor:pointer}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:transform .2s}
+.sw:checked{background:#34c759}
+.sw:checked::after{transform:translateX(20px)}
 .start{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 12px);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .start button{display:block;width:100%;max-width:560px;margin:0 auto;border:0;border-radius:14px;background:var(--acc);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:15px;cursor:pointer}
 .start button:disabled{opacity:.4}
@@ -47,14 +53,15 @@ select{width:100%;border:0;background:var(--card);color:var(--text);font:inherit
 <div class="grid" id="themen"></div>
 <h2>Eigene Sätze – ein Satz pro Zeile</h2>
 <div class="card"><textarea id="eigene" placeholder="Ich bin bereit für neue Aufgaben."></textarea></div>
-<div class="hint">Ich-Form, Gegenwart, positiv. Glaubwürdig bleiben: „Ich lerne, mir zu vertrauen“ statt „Ich bin perfekt“.</div>
+<div class="hint">Ich-Form, Gegenwart, positiv. Glaubwürdig bleiben: „Ich lerne, mir zu vertrauen“ statt „Ich bin perfekt“. Eigene Sätze liest die Handy-Stimme vor.</div>
 <h2>Dauer in Minuten</h2>
 <div class="seg" id="dauer"></div>
 <h2>Klang</h2>
 <div class="seg" id="klang"></div>
+<div class="card" style="margin-top:10px"><div class="zeile"><label for="bin">Binaurale Töne<small>Mit Kopfhörern. Passt sich dem Ziel an.</small></label><input type="checkbox" class="sw" id="bin"></div></div>
 <h2>Stimme</h2>
 <div class="card"><select id="stimme"></select></div>
-<div class="hint">Am iPhone: Einstellungen › Bedienungshilfen › Gesprochene Inhalte › Stimmen – bessere Stimmen laden (kostenlos). Bildschirm bleibt während der Sitzung an.</div>
+<div class="hint">Jede Sitzung ist anders: wechselnder Einstieg, Reihenfolge, Wiederholungen, Atempausen. Bildschirm bleibt während der Sitzung an.</div>
 </main>
 <div class="start"><button id="start">Starten</button></div>
 <div id="spieler">
@@ -66,188 +73,300 @@ select{width:100%;border:0;background:var(--card);color:var(--text);font:inherit
 
 <script>
 "use strict";
-const THEMEN = {
-selbstvertrauen:{t:"Selbstvertrauen",i:"☀️",f:["#f58c40","#8c2e66"],s:["Ich vertraue mir und meinen Fähigkeiten.","Ich darf Raum einnehmen, so wie ich bin.","Ich gehe meinen Weg ruhig und sicher.","Ich wachse mit jeder Herausforderung.","Meine Meinung ist wichtig und darf gehört werden.","Ich treffe Entscheidungen klar und gelassen.","Ich bin stärker, als ich manchmal glaube.","Ich lerne jeden Tag, mir mehr zu vertrauen.","Ich bin bereit für das, was kommt.","Ich stehe zu mir, auch wenn es mal unbequem ist."]},
-ruhe:{t:"Ruhe",i:"🍃",f:["#338c99","#142e4d"],s:["Mit jedem Atemzug werde ich ruhiger.","Ich lasse los, was ich nicht ändern kann.","In mir ist ein Ort der Ruhe, den ich jederzeit finde.","Ich darf langsamer machen.","Mein Körper entspannt sich, Stück für Stück.","Ich begegne dem Moment mit Gelassenheit.","Ich muss gerade nichts leisten. Ich darf einfach sein.","Mein Geist wird klar und still.","Ich bin sicher. Ich bin ruhig. Ich bin hier.","Alles geschieht zur richtigen Zeit."]},
-fokus:{t:"Fokus & Erfolg",i:"🎯",f:["#4066d9","#1a1a59"],s:["Ich richte meine Aufmerksamkeit auf das, was zählt.","Ich arbeite konzentriert und mit Freude.","Ich mache den nächsten Schritt, und dann den nächsten.","Ich bin ausdauernd und lasse mich nicht ablenken.","Meine Ziele sind klar und ich gehe sie an.","Ich lerne aus Fehlern und mache weiter.","Ich habe die Energie, die ich heute brauche.","Ich verdiene meinen Erfolg und arbeite darauf hin.","Ich beginne jetzt, auch wenn es nicht perfekt ist.","Jeder kleine Schritt bringt mich voran."]},
-gesundheit:{t:"Gesundheit",i:"❤️",f:["#40b380","#0d404d"],s:["Mein Körper trägt mich und ich danke ihm dafür.","Ich achte gut auf meine Gesundheit.","Mit jedem Atemzug nehme ich Kraft auf.","Ich treffe Entscheidungen, die mir guttun.","Mein Körper weiß, wie er heilt und sich erholt.","Ich gönne mir Bewegung und Erholung.","Ich höre auf die Signale meines Körpers.","Ich bin dankbar für jeden gesunden Moment.","Ich nähre meinen Körper mit guten Dingen.","Ich fühle mich Tag für Tag lebendiger."]},
-schlaf:{t:"Schlaf",i:"🌙",f:["#333380","#05051f"],s:["Der Tag ist vorbei. Ich darf jetzt ruhen.","Mein Körper wird schwer und warm.","Ich lasse alle Gedanken ziehen wie Wolken.","Ich bin sicher und geborgen.","Mit jedem Ausatmen sinke ich tiefer in die Ruhe.","Ich habe genug getan für heute.","Mein Schlaf ist tief und erholsam.","Ich vertraue der Nacht und lasse los.","Alles in mir wird still.","Ich schlafe ruhig ein und wache erfrischt auf."]},
-dankbarkeit:{t:"Dankbarkeit",i:"🎁",f:["#e6a64d","#663333"],s:["Ich bin dankbar für diesen Tag.","Ich sehe das Gute in meinem Leben.","Ich schätze die Menschen, die an meiner Seite sind.","Auch kleine Dinge machen mich reich.","Ich bin dankbar für alles, was ich bisher gelernt habe.","Ich nehme mir Zeit, das Schöne zu bemerken.","Für diesen Atemzug bin ich dankbar.","Ich bin dankbar für meinen Weg, mit allem, was dazugehört.","Dankbarkeit macht mein Herz weit.","Ich ziehe Gutes an, weil ich Gutes sehe."]},
-selbstliebe:{t:"Selbstliebe",i:"💗",f:["#e66690","#591f59"],s:["Ich bin genug, genau so, wie ich bin.","Ich behandle mich selbst mit Freundlichkeit.","Ich darf Fehler machen und trotzdem wertvoll sein.","Ich verdiene Liebe und Respekt.","Ich spreche liebevoll mit mir selbst.","Ich darf Nein sagen und für mich sorgen.","Ich nehme mich an, mit meinen Stärken und Schwächen.","Ich bin es wert, gut für mich zu sorgen.","Mein Wert hängt nicht von meiner Leistung ab.","Ich lerne, mich jeden Tag ein Stück mehr zu mögen."]},
-fuelle:{t:"Fülle",i:"♾️",f:["#8c66d9","#261a59"],s:["Ich bin offen für Fülle in allen Bereichen.","Ich schaffe Wert und darf dafür gut entlohnt werden.","Ich gehe achtsam und selbstbewusst mit Geld um.","Es gibt genug für alle, auch für mich.","Ich erkenne Chancen und ergreife sie.","Ich erlaube mir, Erfolg zu haben.","Meine Arbeit wird geschätzt.","Ich ziehe Möglichkeiten an, indem ich handle.","Ich bin dankbar für das, was ich habe, und offen für mehr.","Ich baue Schritt für Schritt etwas Gutes auf."]}
-};
-const EINSTIEG=["Setz dich bequem hin und schließe die Augen.","Atme tief ein. Und langsam wieder aus.","Höre einfach zu. Du musst nichts tun."];
-const SCHLUSS="Atme tief ein und aus. Du bist bereit. Öffne langsam die Augen.";
-const SCHLUSS_SCHLAF="Atme noch einmal tief aus. Gute Nacht. Schlaf ruhig und tief.";
+const TEXTE={"themen":{"selbstvertrauen":{"t":"Selbstvertrauen","i":"☀️","f":["#f58c40","#8c2e66"],"beat":10,"s":["Ich vertraue mir und meinen Fähigkeiten.","Ich darf Raum einnehmen, so wie ich bin.","Ich gehe meinen Weg ruhig und sicher.","Ich wachse mit jeder Herausforderung.","Meine Meinung ist wichtig und darf gehört werden.","Ich treffe Entscheidungen klar und gelassen.","Ich bin stärker, als ich manchmal glaube.","Ich lerne jeden Tag, mir mehr zu vertrauen.","Ich bin bereit für das, was kommt.","Ich stehe zu mir, auch wenn es mal unbequem ist.","Ich bin mutig genug, den ersten Schritt zu gehen.","Meine Stimme hat Gewicht.","Ich glaube an das, was ich kann.","Ich bleibe bei mir, auch wenn andere zweifeln.","Ich habe schon viel geschafft und schaffe noch mehr.","Ich vertraue meinem Bauchgefühl.","Ich darf stolz auf mich sein.","Unsicherheit gehört dazu, und ich gehe trotzdem weiter.","Ich strahle Ruhe und Sicherheit aus.","Ich werde Schritt für Schritt der Mensch, der ich sein möchte."]},"ruhe":{"t":"Ruhe","i":"🍃","f":["#338c99","#142e4d"],"beat":6,"s":["Mit jedem Atemzug werde ich ruhiger.","Ich lasse los, was ich nicht ändern kann.","In mir ist ein Ort der Ruhe, den ich jederzeit finde.","Ich darf langsamer machen.","Mein Körper entspannt sich, Stück für Stück.","Ich begegne dem Moment mit Gelassenheit.","Ich muss gerade nichts leisten. Ich darf einfach sein.","Mein Geist wird klar und still.","Ich bin sicher. Ich bin ruhig. Ich bin hier.","Alles geschieht zur richtigen Zeit.","Mein Atem trägt mich.","Ich bin nicht meine Gedanken, ich beobachte sie.","Ich lasse die Anspannung aus meinen Schultern fließen.","Es ist in Ordnung, nichts zu tun.","Ich atme aus und lasse los.","In diesem Moment ist alles gut.","Ich schenke mir eine Pause.","Mein Herz schlägt ruhig und gleichmäßig.","Ich bin gelassen und klar.","Stille tut mir gut."]},"fokus":{"t":"Fokus & Erfolg","i":"🎯","f":["#4066d9","#1a1a59"],"beat":14,"s":["Ich richte meine Aufmerksamkeit auf das, was zählt.","Ich arbeite konzentriert und mit Freude.","Ich mache den nächsten Schritt, und dann den nächsten.","Ich bin ausdauernd und lasse mich nicht ablenken.","Meine Ziele sind klar und ich gehe sie an.","Ich lerne aus Fehlern und mache weiter.","Ich habe die Energie, die ich heute brauche.","Ich verdiene meinen Erfolg und arbeite darauf hin.","Ich beginne jetzt, auch wenn es nicht perfekt ist.","Jeder kleine Schritt bringt mich voran.","Ich konzentriere mich auf eine Sache nach der anderen.","Ich bin bereit, mein Bestes zu geben.","Mein Kopf ist klar und mein Wille ist stark.","Ich setze Prioritäten und halte sie ein.","Ich nutze meine Zeit mit Absicht.","Ich bleibe dran, auch wenn es zäh wird.","Ich bin fokussiert und ruhig zugleich.","Fortschritt ist wichtiger als Perfektion.","Ich sehe mein Ziel klar vor mir.","Ich tue heute, was mich morgen stolz macht."]},"gesundheit":{"t":"Gesundheit","i":"❤️","f":["#40b380","#0d404d"],"beat":8,"s":["Mein Körper trägt mich und ich danke ihm dafür.","Ich achte gut auf meine Gesundheit.","Mit jedem Atemzug nehme ich Kraft auf.","Ich treffe Entscheidungen, die mir guttun.","Mein Körper weiß, wie er heilt und sich erholt.","Ich gönne mir Bewegung und Erholung.","Ich höre auf die Signale meines Körpers.","Ich bin dankbar für jeden gesunden Moment.","Ich nähre meinen Körper mit guten Dingen.","Ich fühle mich Tag für Tag lebendiger.","Ich bewege mich gern und mit Freude.","Ich schlafe gut und erhole mich tief.","Mein Körper ist stark und belastbar.","Ich trinke genug und esse, was mir Energie gibt.","Ich gehe liebevoll mit meinen Grenzen um.","Jede Zelle in mir arbeitet für mein Wohlbefinden.","Ich atme frische Energie ein.","Ich nehme mir Zeit für meine Gesundheit.","Mein Körper und mein Geist sind im Einklang.","Ich bin auf dem Weg zu mehr Wohlbefinden."]},"schlaf":{"t":"Schlaf","i":"🌙","f":["#333380","#05051f"],"beat":2.5,"s":["Der Tag ist vorbei. Ich darf jetzt ruhen.","Mein Körper wird schwer und warm.","Ich lasse alle Gedanken ziehen wie Wolken.","Ich bin sicher und geborgen.","Mit jedem Ausatmen sinke ich tiefer in die Ruhe.","Ich habe genug getan für heute.","Mein Schlaf ist tief und erholsam.","Ich vertraue der Nacht und lasse los.","Alles in mir wird still.","Ich schlafe ruhig ein und wache erfrischt auf.","Meine Augenlider werden schwer.","Meine Gedanken werden langsam und leise.","Mein Bett trägt mich sanft.","Ich lasse den Tag hinter mir.","Mein Atem wird tief und gleichmäßig.","Alle Muskeln in mir entspannen sich.","Ich darf jetzt einfach schlafen.","Die Nacht umhüllt mich ruhig und warm.","Morgen ist ein neuer Tag, und ich bin bereit dafür.","Ich sinke in einen tiefen, friedlichen Schlaf."]},"dankbarkeit":{"t":"Dankbarkeit","i":"🎁","f":["#e6a64d","#663333"],"beat":7.5,"s":["Ich bin dankbar für diesen Tag.","Ich sehe das Gute in meinem Leben.","Ich schätze die Menschen, die an meiner Seite sind.","Auch kleine Dinge machen mich reich.","Ich bin dankbar für alles, was ich bisher gelernt habe.","Ich nehme mir Zeit, das Schöne zu bemerken.","Für diesen Atemzug bin ich dankbar.","Ich bin dankbar für meinen Weg, mit allem, was dazugehört.","Dankbarkeit macht mein Herz weit.","Ich ziehe Gutes an, weil ich Gutes sehe.","Ich bin dankbar für ein Dach über dem Kopf.","Ich bin dankbar für die Menschen, die mich zum Lachen bringen.","Ich bin dankbar für meine Stärke.","Ich bin dankbar für alles, was heute gut gelaufen ist.","Ich bin dankbar für Ruhe und Stille.","Ich bin dankbar für neue Chancen.","Ich bin dankbar für meine Erfahrungen, auch für die schwierigen.","Ich bin dankbar für meine Gesundheit.","Ich bin dankbar für Momente der Freude.","Ich bin dankbar, dass ich hier sein darf."]},"selbstliebe":{"t":"Selbstliebe","i":"💗","f":["#e66690","#591f59"],"beat":7.5,"s":["Ich bin genug, genau so, wie ich bin.","Ich behandle mich selbst mit Freundlichkeit.","Ich darf Fehler machen und trotzdem wertvoll sein.","Ich verdiene Liebe und Respekt.","Ich spreche liebevoll mit mir selbst.","Ich darf Nein sagen und für mich sorgen.","Ich nehme mich an, mit meinen Stärken und Schwächen.","Ich bin es wert, gut für mich zu sorgen.","Mein Wert hängt nicht von meiner Leistung ab.","Ich lerne, mich jeden Tag ein Stück mehr zu mögen.","Ich bin liebenswert, auch an schlechten Tagen.","Ich vergebe mir und lasse Schuld los.","Ich höre auf meine Bedürfnisse.","Ich darf mich gut fühlen.","Ich bin mein bester Freund.","Ich gebe mir die Zeit, die ich brauche.","Ich bin einzigartig und das ist gut so.","Ich achte meine Grenzen und meine Gefühle.","Ich bin stolz auf den Weg, den ich gegangen bin.","Ich verdiene Freude und Leichtigkeit."]},"fuelle":{"t":"Fülle","i":"♾️","f":["#8c66d9","#261a59"],"beat":10,"s":["Ich bin offen für Fülle in allen Bereichen.","Ich schaffe Wert und darf dafür gut entlohnt werden.","Ich gehe achtsam und selbstbewusst mit Geld um.","Es gibt genug für alle, auch für mich.","Ich erkenne Chancen und ergreife sie.","Ich erlaube mir, Erfolg zu haben.","Meine Arbeit wird geschätzt.","Ich ziehe Möglichkeiten an, indem ich handle.","Ich bin dankbar für das, was ich habe, und offen für mehr.","Ich baue Schritt für Schritt etwas Gutes auf.","Geld ist ein Werkzeug, das ich weise nutze.","Ich bin offen dafür, Gutes zu empfangen.","Ich darf mehr verdienen und mehr genießen.","Ich bin umgeben von Möglichkeiten.","Ich investiere in mich und meine Zukunft.","Ich teile gern und empfange gern.","Mein Einkommen wächst mit meinem Können.","Ich vertraue darauf, dass ich versorgt bin.","Ich sehe Überfluss, wo ich hinschaue.","Ich arbeite klug und werde dafür belohnt."]}},"einstieg":[["Setz dich bequem hin und schließe die Augen.","Atme tief ein. Und langsam wieder aus.","Höre einfach zu. Du musst nichts tun."],["Finde eine bequeme Position.","Atme durch die Nase ein, und durch den Mund wieder aus.","Lass die Worte einfach auf dich wirken."],["Nimm dir diesen Moment nur für dich.","Spüre, wie dein Körper getragen wird.","Atme ruhig ein und aus, und lass alles andere warten."],["Lehne dich zurück und entspanne deine Schultern.","Atme einmal tief ein und seufze beim Ausatmen.","Gleich hörst du Sätze, die dich stärken. Nimm sie an."],["Schön, dass du dir Zeit nimmst.","Schließe die Augen und spüre deinen Atem.","Mit jedem Ausatmen wirst du ein bisschen ruhiger."]],"einstiegSchlaf":[["Leg dich bequem hin und schließe die Augen.","Atme langsam ein, und lang wieder aus.","Du musst nichts mehr tun. Hör einfach zu."],["Es ist Zeit, zur Ruhe zu kommen.","Lass deinen Körper schwer werden.","Atme tief ein, und noch langsamer aus."],["Der Tag darf jetzt enden.","Spüre, wie das Bett dich trägt.","Atme sanft, und lass alles los."]],"atem":["Atme tief ein.","Und langsam aus.","Spüre den Atem in deinem Körper.","Lass die Schultern sinken.","Atme ruhig weiter.","Genieße diesen Moment."],"atemSchlaf":["Atme langsam aus.","Lass noch ein wenig mehr los.","Spüre die Schwere deines Körpers.","Atme ruhig weiter."],"bruecke":["Wiederhole in Gedanken:","Spüre diese Worte:","Nimm diesen Satz an:","Lass ihn auf dich wirken:"],"schluss":["Atme tief ein und aus. Du bist bereit. Öffne langsam die Augen.","Spüre noch einmal deinen Atem. Nimm diese Kraft mit in deinen Tag. Öffne in deinem Tempo die Augen.","Du hast dir etwas Gutes getan. Atme tief durch, und komm langsam zurück.","Bewege sanft deine Finger und Zehen. Atme tief ein. Und öffne die Augen."],"schlussSchlaf":["Atme noch einmal tief aus. Gute Nacht. Schlaf ruhig und tief.","Lass jetzt alles los. Du bist sicher und geborgen. Schlaf gut.","Die Worte begleiten dich in die Nacht. Gute Nacht."]};
+const PAK={"m":{"b4bfad90":[0,14576],"b029de52":[14576,13636],"ad0255c1":[28212,11285],"c3c51b76":[39497,13322],"15bc40fc":[52819,16770],"172171d4":[69589,14733],"b073eea0":[84322,14890],"5b4d1a8e":[99212,15673],"61cfa63e":[114885,11598],"d012ff44":[126483,14890],"c35be62b":[141373,15987],"3628b3b8":[157360,7523],"89707127":[164883,12852],"3f74e3a0":[177735,16300],"91b2ba70":[194035,14576],"ee437591":[208611,12695],"1a4a2a3e":[221306,9717],"c8f22b97":[231023,19278],"de842cb8":[250301,13165],"f781eff8":[263466,15987],"b691a570":[279453,13009],"28013893":[292462,14419],"cf3ef259":[306881,16300],"1a17b62":[323181,8307],"a2345950":[331488,14106],"c26f877e":[345594,13479],"3380f7ee":[359073,17241],"1bb5301d":[376314,9717],"26198483":[386031,15673],"23cc255a":[401704,10814],"d3be3abf":[412518,9247],"da808d49":[421765,15203],"45553b8f":[436968,15830],"f4ed8f9e":[452798,14576],"5360c8ac":[467374,11598],"e756c5f4":[478972,9561],"5553ccb3":[488533,9090],"b7d96202":[497623,14106],"8b9edf6b":[511729,9404],"191475f9":[521133,6739],"865cf9e2":[527872,18651],"3f11d4ba":[546523,14106],"4e1c9f50":[560629,16457],"3097ac4a":[577086,17397],"ce296cea":[594483,14106],"499a7bf3":[608589,15360],"bec1014d":[623949,14576],"4e9bc6e9":[638525,16927],"b1a840ae":[655452,16457],"31d58483":[671909,12539],"eb723085":[684448,15360],"37606956":[699808,12225],"f98618de":[712033,14733],"37e5a7d6":[726766,15516],"6cde4fd9":[742282,11128],"549115da":[753410,15203],"6e044b2e":[768613,13792],"e2daa92e":[782405,14263],"29c05b06":[796668,10501],"18db2c7f":[807169,15830],"cec3bd05":[822999,15046],"af6a061a":[838045,10971],"9f1d2522":[849016,16457],"d70227b8":[865473,13636],"dd0af570":[879109,17711],"bc6e8886":[896820,12068],"14eea975":[908888,14890],"456079ce":[923778,13165],"565aa12c":[936943,12539],"3858bb90":[949482,12068],"172350e9":[961550,12539],"97c2efb6":[974089,14263],"8a9f46e8":[988352,13792],"c5ab9595":[1002144,19278],"78b2c5":[1021422,12852],"e0564876":[1034274,16927],"3d9ebc6f":[1051201,10814],"68f4a93c":[1062015,12068],"add23c2b":[1074083,14576],"736214c5":[1088659,14733],"365ee6b5":[1103392,17241],"8159eabe":[1120633,12068],"ce4d6524":[1132701,14733],"90956bdc":[1147434,9404],"398543d8":[1156838,16614],"47ab080f":[1173452,10501],"441021b3":[1183953,13165],"670fa767":[1197118,13792],"2a0a178d":[1210910,8307],"a48e41b7":[1219217,18024],"f07bf9e":[1237241,11912],"3eaa9b0f":[1249153,13636],"d91754ed":[1262789,8463],"a12035b0":[1271252,9247],"abb5e6ce":[1280499,13165],"42c310a":[1293664,13636],"e922b38d":[1307300,10031],"4e655f71":[1317331,12225],"6f626588":[1329556,17554],"b40cc2ee":[1347110,15830],"70347d55":[1362940,9247],"777bb52b":[1372187,10814],"a438aa30":[1383001,15830],"735f8bdb":[1398831,11912],"e4f64e0f":[1410743,17868],"d4d528d7":[1428611,15673],"84b91b64":[1444284,13009],"eee1dec2":[1457293,20689],"a9985601":[1477982,12068],"45e2e45":[1490050,16300],"ec0660aa":[1506350,13792],"e0819ce3":[1520142,16457],"1bd28246":[1536599,11285],"898f8033":[1547884,18494],"628dc7cf":[1566378,12539],"b5766ce":[1578917,11755],"54dc8a89":[1590672,19748],"e6bff115":[1610420,10971],"b79835b2":[1621391,13792],"e9c560f6":[1635183,14419],"24275076":[1649602,15987],"6edb22ab":[1665589,13322],"d9d7b28a":[1678911,19121],"cbb1a545":[1698032,12225],"f49b7560":[1710257,11755],"d67661c0":[1722012,12695],"1ff5720b":[1734707,16770],"e182b012":[1751477,15987],"915af074":[1767464,11441],"f2353ead":[1778905,17084],"5c3c34dc":[1795989,15516],"2c5d166d":[1811505,15987],"64fa557f":[1827492,10344],"98c035e6":[1837836,8307],"2a6fa39a":[1846143,9561],"d58f3e7e":[1855704,13949],"89e269a0":[1869653,15360],"965945ab":[1885013,14890],"f8937878":[1899903,15987],"b63c710b":[1915890,13792],"ef629ccb":[1929682,15203],"ca68d53":[1944885,18181],"4e69c5b0":[1963066,17711],"5e75b6ff":[1980777,13165],"d1516ee6":[1993942,14733],"a9e8d00d":[2008675,13479],"431a2ab2":[2022154,8777],"dcd7f34c":[2030931,17241],"8f86e78f":[2048172,20689],"5e0e6bba":[2068861,13949],"7e532c14":[2082810,15830],"75c13da7":[2098640,15046],"4d8d70ff":[2113686,13949],"7b640422":[2127635,12852],"d70f9455":[2140487,15516],"fb585398":[2156003,13479],"89b30fc3":[2169482,13479],"e7edc6e6":[2182961,16614],"c24a6552":[2199575,12852],"c02dcac3":[2212427,13322],"41788830":[2225749,13322],"99d869f7":[2239071,15046],"acb66cb2":[2254117,17397],"18907c9f":[2271514,10501],"c5686d3a":[2282015,20689],"50dd6127":[2302704,12225],"dd059e2a":[2314929,10344],"74a8c6b7":[2325273,14419],"bb038de2":[2339692,19278],"7c33d9b6":[2358970,16770],"b98e6758":[2375740,18181],"6d32ac55":[2393921,16927],"59422346":[2410848,10971],"96ae902":[2421819,14733],"aaa30e25":[2436552,16143],"572c32dc":[2452695,14733],"564e21c3":[2467428,15673],"7af538a9":[2483101,15516],"ef7100ac":[2498617,11755],"9b046f8e":[2510372,9717],"b63a92ec":[2520089,15516],"7716178a":[2535605,9247],"476356ba":[2544852,11912],"b0a015b5":[2556764,14263],"c047b60":[2571027,7210],"214cd620":[2578237,7210],"95da5bca":[2585447,10188],"39f6defc":[2595635,9247],"cd6068fd":[2604882,9090],"1c0209f":[2613972,8150],"1a1daec":[2622122,7523],"8f4418ae":[2629645,9874],"d8ac31e3":[2639519,11128],"d0b5404f":[2650647,9247],"fe50b450":[2659894,8620],"a0914ce7":[2668514,7053],"a1a213bd":[2675567,8307],"51c55c08":[2683874,24921],"cb08d31d":[2708795,31347],"e5a3b78a":[2740142,26174],"1d181c04":[2766316,26174],"c271f9cb":[2792490,24450],"e9e89860":[2816940,21943],"c18fac79":[2838883,15830]},"f":{"b4bfad90":[0,13176],"b029de52":[13176,11880],"ad0255c1":[25056,13824],"c3c51b76":[38880,12312],"15bc40fc":[51192,15984],"172171d4":[67176,14256],"b073eea0":[81432,12096],"5b4d1a8e":[93528,15552],"61cfa63e":[109080,11880],"d012ff44":[120960,17496],"c35be62b":[138456,15768],"3628b3b8":[154224,10800],"89707127":[165024,11880],"3f74e3a0":[176904,14256],"91b2ba70":[191160,14688],"ee437591":[205848,12528],"1a4a2a3e":[218376,10368],"c8f22b97":[228744,21600],"de842cb8":[250344,15336],"f781eff8":[265680,14040],"b691a570":[279720,12960],"28013893":[292680,14256],"cf3ef259":[306936,18144],"1a17b62":[325080,9720],"a2345950":[334800,13176],"c26f877e":[347976,14040],"3380f7ee":[362016,18576],"1bb5301d":[380592,11664],"26198483":[392256,16632],"23cc255a":[408888,13392],"d3be3abf":[422280,9288],"da808d49":[431568,20304],"45553b8f":[451872,15120],"f4ed8f9e":[466992,12096],"5360c8ac":[479088,11664],"e756c5f4":[490752,13392],"5553ccb3":[504144,9072],"b7d96202":[513216,14688],"8b9edf6b":[527904,9936],"191475f9":[537840,7560],"865cf9e2":[545400,17712],"3f11d4ba":[563112,15552],"4e1c9f50":[578664,13608],"3097ac4a":[592272,13824],"ce296cea":[606096,16848],"499a7bf3":[622944,13608],"bec1014d":[636552,11448],"4e9bc6e9":[648000,19440],"b1a840ae":[667440,14256],"31d58483":[681696,12312],"eb723085":[694008,15984],"37606956":[709992,12744],"f98618de":[722736,15120],"37e5a7d6":[737856,13824],"6cde4fd9":[751680,11232],"549115da":[762912,12744],"6e044b2e":[775656,12312],"e2daa92e":[787968,14904],"29c05b06":[802872,12744],"18db2c7f":[815616,12528],"cec3bd05":[828144,15768],"af6a061a":[843912,12096],"9f1d2522":[856008,15336],"d70227b8":[871344,14256],"dd0af570":[885600,16848],"bc6e8886":[902448,11016],"14eea975":[913464,14040],"456079ce":[927504,15120],"565aa12c":[942624,14256],"3858bb90":[956880,14256],"172350e9":[971136,12096],"97c2efb6":[983232,14472],"8a9f46e8":[997704,14904],"c5ab9595":[1012608,15984],"78b2c5":[1028592,13824],"e0564876":[1042416,17928],"3d9ebc6f":[1060344,11664],"68f4a93c":[1072008,11016],"add23c2b":[1083024,15120],"736214c5":[1098144,13176],"365ee6b5":[1111320,15336],"8159eabe":[1126656,14040],"ce4d6524":[1140696,15552],"90956bdc":[1156248,10800],"398543d8":[1167048,19008],"47ab080f":[1186056,10368],"441021b3":[1196424,14688],"670fa767":[1211112,14040],"2a0a178d":[1225152,9504],"a48e41b7":[1234656,19224],"f07bf9e":[1253880,11016],"3eaa9b0f":[1264896,16632],"d91754ed":[1281528,11016],"a12035b0":[1292544,10368],"abb5e6ce":[1302912,16848],"42c310a":[1319760,14472],"e922b38d":[1334232,11232],"4e655f71":[1345464,13824],"6f626588":[1359288,17496],"b40cc2ee":[1376784,14688],"70347d55":[1391472,10584],"777bb52b":[1402056,12096],"a438aa30":[1414152,17064],"735f8bdb":[1431216,13176],"e4f64e0f":[1444392,17928],"d4d528d7":[1462320,15336],"84b91b64":[1477656,15120],"eee1dec2":[1492776,19440],"a9985601":[1512216,11664],"45e2e45":[1523880,15984],"ec0660aa":[1539864,12096],"e0819ce3":[1551960,16632],"1bd28246":[1568592,11232],"898f8033":[1579824,17928],"628dc7cf":[1597752,13824],"b5766ce":[1611576,13176],"54dc8a89":[1624752,17712],"e6bff115":[1642464,12960],"b79835b2":[1655424,12312],"e9c560f6":[1667736,13608],"24275076":[1681344,14472],"6edb22ab":[1695816,14256],"d9d7b28a":[1710072,16632],"cbb1a545":[1726704,12096],"f49b7560":[1738800,11448],"d67661c0":[1750248,11880],"1ff5720b":[1762128,14688],"e182b012":[1776816,14040],"915af074":[1790856,13824],"f2353ead":[1804680,15336],"5c3c34dc":[1820016,14256],"2c5d166d":[1834272,13608],"64fa557f":[1847880,11232],"98c035e6":[1859112,9072],"2a6fa39a":[1868184,8856],"d58f3e7e":[1877040,11232],"89e269a0":[1888272,15768],"965945ab":[1904040,15768],"f8937878":[1919808,13392],"b63c710b":[1933200,13392],"ef629ccb":[1946592,13824],"ca68d53":[1960416,17496],"4e69c5b0":[1977912,18144],"5e75b6ff":[1996056,13608],"d1516ee6":[2009664,12744],"a9e8d00d":[2022408,12960],"431a2ab2":[2035368,9936],"dcd7f34c":[2045304,16200],"8f86e78f":[2061504,18144],"5e0e6bba":[2079648,13392],"7e532c14":[2093040,14256],"75c13da7":[2107296,13824],"4d8d70ff":[2121120,14688],"7b640422":[2135808,12744],"d70f9455":[2148552,15120],"fb585398":[2163672,11880],"89b30fc3":[2175552,12744],"e7edc6e6":[2188296,14256],"c24a6552":[2202552,12528],"c02dcac3":[2215080,14688],"41788830":[2229768,14688],"99d869f7":[2244456,16416],"acb66cb2":[2260872,15120],"18907c9f":[2275992,11880],"c5686d3a":[2287872,19224],"50dd6127":[2307096,12312],"dd059e2a":[2319408,11664],"74a8c6b7":[2331072,15552],"bb038de2":[2346624,24624],"7c33d9b6":[2371248,15984],"b98e6758":[2387232,17712],"6d32ac55":[2404944,18144],"59422346":[2423088,12096],"96ae902":[2435184,15336],"aaa30e25":[2450520,15768],"572c32dc":[2466288,11880],"564e21c3":[2478168,17712],"7af538a9":[2495880,15336],"ef7100ac":[2511216,11232],"9b046f8e":[2522448,11232],"b63a92ec":[2533680,17496],"7716178a":[2551176,9936],"476356ba":[2561112,9936],"b0a015b5":[2571048,12960],"c047b60":[2584008,7776],"214cd620":[2591784,8208],"95da5bca":[2599992,12528],"39f6defc":[2612520,9072],"cd6068fd":[2621592,7992],"1c0209f":[2629584,8640],"1a1daec":[2638224,9504],"8f4418ae":[2647728,10584],"d8ac31e3":[2658312,13608],"d0b5404f":[2671920,9504],"fe50b450":[2681424,8208],"a0914ce7":[2689632,7344],"a1a213bd":[2696976,7776],"51c55c08":[2704752,27216],"cb08d31d":[2731968,36072],"e5a3b78a":[2768040,28080],"1d181c04":[2796120,30024],"c271f9cb":[2826144,28296],"e9e89860":[2854440,25272],"c18fac79":[2879712,18144]}};
+const THEMEN=TEXTE.themen;
+const KLAENGE={sanft:"Sanft",regen:"Regen",meer:"Meer",schalen:"Schalen",tief:"Tief",ohne:"Ohne"};
 const DAUERN=[5,15,30,45,60,120];
-const KLAENGE={sanft:"Sanft",regen:"Regen",meer:"Meer",tief:"Tief",ohne:"Ohne"};
 const $=id=>document.getElementById(id);
+const wahl=a=>a[Math.floor(Math.random()*a.length)];
+const mischen=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const zw=(a,b)=>a+Math.random()*(b-a);
+function fnv(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h.toString(16)}
 
-let E={themen:["selbstvertrauen"],eigene:"",dauer:15,klang:"sanft",stimme:""};
-try{Object.assign(E,JSON.parse(localStorage.getItem("affirmationen")||"{}"))}catch(e){}
-const speichern=()=>{try{localStorage.setItem("affirmationen",JSON.stringify(E))}catch(e){}};
+let E={themen:["selbstvertrauen"],eigene:"",dauer:15,klang:"sanft",binaural:true,stimme:"m"};
+try{Object.assign(E,JSON.parse(localStorage.getItem("affirmationen2")||"{}"))}catch(e){}
+if(!E.stimme||E.stimme.length>1&&!E.stimme.includes(":")&&!E.stimme.includes("."))E.stimme=E.stimme==="f"?"f":"m";
+const speichern=()=>{try{localStorage.setItem("affirmationen2",JSON.stringify(E))}catch(e){}};
 const eigeneSaetze=()=>E.eigene.split("\n").map(s=>s.trim()).filter(Boolean);
 const saetze=()=>E.themen.flatMap(t=>THEMEN[t].s).concat(eigeneSaetze());
 const schlafModus=()=>E.themen.length===1&&E.themen[0]==="schlaf"&&!eigeneSaetze().length;
 
 // ---------- Oberfläche ----------
 function zeichne(){
-$("themen").innerHTML="";
-for(const k in THEMEN){
-const b=document.createElement("button");b.className="chip"+(E.themen.includes(k)?" on":"");
-b.innerHTML=`<span>${THEMEN[k].i}</span><span>${THEMEN[k].t}</span>`;
-b.onclick=()=>{E.themen=E.themen.includes(k)?E.themen.filter(x=>x!==k):[...E.themen,k];speichern();zeichne()};
-$("themen").append(b);
-}
-seg("dauer",DAUERN.map(d=>[d,String(d)]),E.dauer,v=>E.dauer=v);
-seg("klang",Object.entries(KLAENGE),E.klang,v=>E.klang=v);
-$("start").disabled=!saetze().length;
+  $("themen").innerHTML="";
+  for(const k in THEMEN){
+    const b=document.createElement("button");b.className="chip"+(E.themen.includes(k)?" on":"");
+    b.innerHTML=`<span>${THEMEN[k].i}</span><span>${THEMEN[k].t}</span>`;
+    b.onclick=()=>{E.themen=E.themen.includes(k)?E.themen.filter(x=>x!==k):[...E.themen,k];speichern();zeichne()};
+    $("themen").append(b);
+  }
+  seg("dauer",DAUERN.map(d=>[d,String(d)]),E.dauer,v=>E.dauer=v);
+  seg("klang",Object.entries(KLAENGE),E.klang,v=>E.klang=v);
+  $("start").disabled=!saetze().length;
 }
 function seg(id,eintraege,aktiv,setze){
-const el=$(id);el.innerHTML="";
-for(const[v,t]of eintraege){
-const b=document.createElement("button");b.textContent=t;b.className=v==aktiv?"on":"";
-b.onclick=()=>{setze(v);speichern();zeichne()};el.append(b);
-}
+  const el=$(id);el.innerHTML="";
+  for(const[v,t]of eintraege){
+    const b=document.createElement("button");b.textContent=t;b.className=v==aktiv?"on":"";
+    b.onclick=()=>{setze(v);speichern();zeichne()};el.append(b);
+  }
 }
 function stimmenLaden(){
-const liste=speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().startsWith("de"));
-$("stimme").innerHTML='<option value="">Stimme: Automatisch</option>'+liste.map(v=>`<option value="${v.voiceURI}">${v.name}</option>`).join("");
-$("stimme").value=E.stimme;
+  const liste=("speechSynthesis" in window?speechSynthesis.getVoices():[]).filter(v=>v.lang.toLowerCase().startsWith("de"));
+  $("stimme").innerHTML='<option value="m">Mann – natürlich</option><option value="f">Frau – natürlich</option>'+
+    (liste.length?'<optgroup label="Handy-Stimmen">'+liste.map(v=>`<option value="${v.voiceURI}">${v.name}</option>`).join("")+'</optgroup>':"");
+  $("stimme").value=E.stimme;
+  if($("stimme").value!==E.stimme){E.stimme="m";$("stimme").value="m"}
 }
 $("eigene").value=E.eigene;
 $("eigene").oninput=e=>{E.eigene=e.target.value;speichern();$("start").disabled=!saetze().length};
 $("stimme").onchange=e=>{E.stimme=e.target.value;speichern()};
-if("speechSynthesis" in window){stimmenLaden();speechSynthesis.onvoiceschanged=stimmenLaden}
+$("bin").checked=!!E.binaural;
+$("bin").onchange=e=>{E.binaural=e.target.checked;speichern()};
+if("speechSynthesis" in window){speechSynthesis.onvoiceschanged=stimmenLaden}
+stimmenLaden();
 zeichne();
 
 // ---------- Klang (live erzeugt) ----------
-let ctx,master,quellen=[],pegelZiel=0.8;
-const AKKORDE=[[130.81,196,246.94,293.66,329.63],[110,164.81,196,246.94,261.63],[87.31,130.81,196,220,329.63],[98,146.83,220,246.94,329.63]];
-function rauschBuffer(typ){
-const n=ctx.sampleRate*6,b=ctx.createBuffer(2,n,ctx.sampleRate);
-for(let c=0;c<2;c++){const d=b.getChannelData(c);let br=0;
-for(let i=0;i<n;i++){const w=Math.random()*2-1;if(typ==="braun"){br=(br+0.02*w)/1.02;d[i]=br*3.5}else d[i]=w*0.5}}
-return b;
+let ctx,master,sprechBus,hallBuf,quellen=[];
+const AKKORDE=[
+  [130.81,196,246.94,293.66,329.63],[110,164.81,196,246.94,261.63],[87.31,130.81,196,220,329.63],
+  [98,146.83,220,246.94,329.63],[82.41,123.47,185,196,293.66],[146.83,164.81,220,261.63,174.61]
+];
+function impuls(sek){
+  const n=Math.floor(ctx.sampleRate*sek),b=ctx.createBuffer(2,n,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let lp=0;
+    for(let i=0;i<n;i++){const w=(Math.random()*2-1)*Math.pow(1-i/n,3);lp+=0.3*(w-lp);d[i]=lp}}
+  return b;
 }
-function klangStart(art){
-ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();
-ctx.resume();
-master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
-quellen=[];
-if(art==="ohne")return;
-const hall=ctx.createConvolver();
-const imp=ctx.createBuffer(2,ctx.sampleRate*3,ctx.sampleRate);
-for(let c=0;c<2;c++){const d=imp.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3)}
-hall.buffer=imp;
-const trocken=ctx.createGain(),nass=ctx.createGain();nass.gain.value=0.5;
-const bus=ctx.createGain();bus.connect(trocken);bus.connect(hall);hall.connect(nass);
-trocken.connect(master);nass.connect(master);
-if(art==="sanft"){
-const osz=[];
-for(let v=0;v<5;v++)for(const det of[1,1.003]){
-const o=ctx.createOscillator(),g=ctx.createGain(),p=ctx.createStereoPanner();
-o.frequency.value=AKKORDE[0][v]*det;g.gain.value=0.045;p.pan.value=-0.6+1.2*v/4;
-o.connect(g);g.connect(p);p.connect(bus);o.start();osz.push([o,det,v]);quellen.push(o);
+function rauschBuffer(typ,sek){
+  const n=Math.floor(ctx.sampleRate*sek),b=ctx.createBuffer(2,n,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let br=0;
+    for(let i=0;i<n;i++){const w=Math.random()*2-1;if(typ==="braun"){br=(br+0.02*w)/1.02;d[i]=br*3.5}else d[i]=w*0.5}}
+  return b;
 }
-let i=0;const wechsel=setInterval(()=>{i=(i+1)%4;osz.forEach(([o,det,v])=>o.frequency.setTargetAtTime(AKKORDE[i][v]*det,ctx.currentTime,3))},16000);
-quellen.push({stop(){clearInterval(wechsel)}});
-}else if(art==="regen"||art==="meer"){
-const s=ctx.createBufferSource();s.buffer=rauschBuffer(art==="meer"?"braun":"weiss");s.loop=true;
-const f=ctx.createBiquadFilter();
-if(art==="regen"){f.type="bandpass";f.frequency.value=2500;f.Q.value=0.4}else{f.type="lowpass";f.frequency.value=700}
-const g=ctx.createGain();g.gain.value=art==="regen"?0.35:0.5;
-s.connect(f);f.connect(g);g.connect(bus);s.start();quellen.push(s);
-if(art==="meer"){const l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=0.1;lg.gain.value=0.25;l.connect(lg);lg.connect(g.gain);l.start();quellen.push(l)}
-}else if(art==="tief"){
-[[55,.22],[55.25,.16],[82.41,.1],[110,.06]].forEach(([fr,a])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=fr;g.gain.value=a;o.connect(g);g.connect(bus);o.start();quellen.push(o)});
+function osz(typ,f,ziel){const o=ctx.createOscillator();o.type=typ;o.frequency.value=f;o.start();quellen.push(o);if(ziel)o.connect(ziel);return o}
+function lfo(f,tiefe,param){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f;g.gain.value=tiefe;o.connect(g);g.connect(param);o.start();quellen.push(o)}
+function takt(fn,msMin,msMax){let an=true;const t=()=>{if(!an)return;fn();setTimeout(t,zw(msMin,msMax))};setTimeout(t,zw(msMin,msMax));quellen.push({stop(){an=false}})}
+
+function audioStart(){
+  ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();
+  ctx.resume();
+  if(!hallBuf)hallBuf=impuls(4);
+  if(!sprechBus){
+    sprechBus=ctx.createGain();sprechBus.connect(ctx.destination);
+    const h=ctx.createConvolver(),g=ctx.createGain();h.buffer=hallBuf;g.gain.value=0.14;sprechBus.connect(h);h.connect(g);g.connect(ctx.destination);
+  }
 }
-pegel(0.8,5);
+function klangStart(art,beat){
+  audioStart();
+  master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+  quellen=[];
+  const trocken=ctx.createGain(),nass=ctx.createGain(),hall=ctx.createConvolver(),bus=ctx.createGain();
+  hall.buffer=hallBuf;nass.gain.value=0.55;
+  bus.connect(trocken);bus.connect(hall);hall.connect(nass);trocken.connect(master);nass.connect(master);
+
+  if(art==="sanft"||art==="schalen"){
+    const fl=ctx.createBiquadFilter();fl.type="lowpass";fl.frequency.value=1100;fl.connect(bus);lfo(0.04,350,fl.frequency);
+    const pegelPad=art==="schalen"?0.4:1;
+    const stimmen=[];
+    for(let v=0;v<5;v++){
+      const g=ctx.createGain();g.gain.value=0.05*pegelPad;g.connect(fl);
+      lfo(zw(0.03,0.08),0.03*pegelPad,g.gain);
+      const pan=ctx.createStereoPanner();pan.pan.value=-0.6+1.2*v/4;pan.connect(g);
+      for(const[typ,det]of[["sine",1],["triangle",1.004],["sine",0.5]]){
+        const o=osz(typ,AKKORDE[0][v]*det);stimmen.push([o,det,v]);
+        const og=ctx.createGain();og.gain.value=typ==="triangle"?0.5:1;o.connect(og);og.connect(pan);
+      }
+    }
+    let i=0;const w=setInterval(()=>{i=(i+1)%AKKORDE.length;stimmen.forEach(([o,d,v])=>o.frequency.setTargetAtTime(AKKORDE[i][v]*d,ctx.currentTime,4))},20000);
+    quellen.push({stop(){clearInterval(w)}});
+    if(art==="schalen"){
+      const noten=[196,220,246.94,293.66,329.63,392,440];
+      const schlag=()=>{
+        const f=wahl(noten),t=ctx.currentTime,pan=ctx.createStereoPanner();pan.pan.value=zw(-0.5,0.5);pan.connect(bus);
+        [[1,0.5,9],[2.76,0.22,5],[5.4,0.09,3]].forEach(([r,a,d])=>{
+          const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f*r;
+          g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(a*0.5,t+0.03);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+          o.connect(g);g.connect(pan);o.start(t);o.stop(t+d+0.1);
+        });
+      };
+      schlag();takt(schlag,8000,15000);
+    }
+  }else if(art==="regen"){
+    const s=ctx.createBufferSource();s.buffer=rauschBuffer("weiss",6);s.loop=true;
+    const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=2200;bp.Q.value=0.5;
+    const g=ctx.createGain();g.gain.value=0.3;s.connect(bp);bp.connect(g);g.connect(bus);s.start();quellen.push(s);
+    lfo(0.07,0.05,g.gain);
+    const s2=ctx.createBufferSource();s2.buffer=rauschBuffer("braun",6);s2.loop=true;
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=220;const g2=ctx.createGain();g2.gain.value=0.35;
+    s2.connect(lp);lp.connect(g2);g2.connect(bus);s2.start();quellen.push(s2);
+    const tropfen=rauschBuffer("weiss",0.15);
+    takt(()=>{
+      const b=ctx.createBufferSource();b.buffer=tropfen;
+      const f=ctx.createBiquadFilter();f.type="bandpass";f.frequency.value=zw(1500,6500);f.Q.value=3;
+      const e=ctx.createGain(),t=ctx.currentTime;e.gain.setValueAtTime(zw(0.1,0.35),t);e.gain.exponentialRampToValueAtTime(0.0001,t+0.06);
+      const p=ctx.createStereoPanner();p.pan.value=zw(-0.9,0.9);
+      b.connect(f);f.connect(e);e.connect(p);p.connect(bus);b.start(t);b.stop(t+0.15);
+    },60,220);
+  }else if(art==="meer"){
+    const s=ctx.createBufferSource();s.buffer=rauschBuffer("braun",8);s.loop=true;
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=600;lfo(0.09,380,lp.frequency);lfo(0.061,160,lp.frequency);
+    const g=ctx.createGain();g.gain.value=0.32;lfo(0.09,0.22,g.gain);lfo(0.061,0.1,g.gain);
+    s.connect(lp);lp.connect(g);g.connect(bus);s.start();quellen.push(s);
+    const s2=ctx.createBufferSource();s2.buffer=rauschBuffer("weiss",6);s2.loop=true;
+    const hp=ctx.createBiquadFilter();hp.type="bandpass";hp.frequency.value=3000;hp.Q.value=0.4;
+    const g2=ctx.createGain();g2.gain.value=0.04;lfo(0.09,0.035,g2.gain);
+    s2.connect(hp);hp.connect(g2);g2.connect(bus);s2.start();quellen.push(s2);
+  }else if(art==="tief"){
+    [[55,.2],[55.2,.15],[82.41,.09],[110,.05],[164.81,.02]].forEach(([f,a])=>{
+      const g=ctx.createGain();g.gain.value=a;lfo(zw(0.05,0.12),a*0.4,g.gain);osz("sine",f,g);g.connect(bus);
+    });
+    const s=ctx.createBufferSource();s.buffer=rauschBuffer("braun",8);s.loop=true;
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=ctx.createGain();g.gain.value=0.25;lfo(0.07,0.12,g.gain);
+    s.connect(lp);lp.connect(g);g.connect(bus);s.start();quellen.push(s);
+  }
+
+  if(E.binaural){
+    const m=ctx.createChannelMerger(2),g=ctx.createGain();g.gain.value=0.09;
+    const l=osz("sine",140),r=osz("sine",140+beat);
+    l.connect(m,0,0);r.connect(m,0,1);m.connect(g);g.connect(master);
+  }
+  pegel(0.8,5);
 }
-function pegel(ziel,tau){if(master){pegelZiel=ziel;master.gain.setTargetAtTime(ziel,ctx.currentTime,tau/3)}}
+function pegel(ziel,tau){if(master)master.gain.setTargetAtTime(ziel,ctx.currentTime,tau/3)}
 function klangStop(){quellen.forEach(q=>{try{q.stop()}catch(e){}});quellen=[];if(master){master.disconnect();master=null}}
 
-// ---------- Sitzung ----------
+// ---------- Sprache: natürliche Stimme (Piper) oder Handy-Stimme ----------
+const pakDaten={},pufferCache={};
+async function pakLaden(v){
+  if(!PAK[v]||pakDaten[v])return;
+  try{
+    const teile=[];
+    for(let i=0;;i++){const r=await fetch(v+"."+i+".bin");if(!r.ok)break;teile.push(new Uint8Array(await r.arrayBuffer()))}
+    if(!teile.length)return;
+    const gesamt=new Uint8Array(teile.reduce((a,t)=>a+t.length,0));let o=0;teile.forEach(t=>{gesamt.set(t,o);o+=t.length});
+    pakDaten[v]=gesamt.buffer;
+  }catch(e){}
+}
+async function clip(v,text){
+  const eintrag=PAK[v]&&PAK[v][fnv(text)];
+  if(!eintrag)return null;
+  const key=v+fnv(text);
+  if(pufferCache[key])return pufferCache[key];
+  await pakLaden(v);
+  if(!pakDaten[v])return null;
+  try{pufferCache[key]=await ctx.decodeAudioData(pakDaten[v].slice(eintrag[0],eintrag[0]+eintrag[1]));return pufferCache[key]}catch(e){return null}
+}
+let aktuellerClip=null,sprechRes=null;
+function sprich(t,my){
+  return new Promise(async res=>{
+    const nat=(E.stimme==="m"||E.stimme==="f")?await clip(E.stimme,t):null;
+    if(my.stop)return res();
+    sprechRes=res;
+    if(nat){
+      const s=ctx.createBufferSource();s.buffer=nat;s.connect(sprechBus);
+      s.onended=()=>{aktuellerClip=null;res()};aktuellerClip=s;s.start();
+    }else if("speechSynthesis" in window){
+      const u=new SpeechSynthesisUtterance(t);u.lang="de-DE";u.rate=schlafModus()?0.8:0.88;u.pitch=0.95;
+      const vs=speechSynthesis.getVoices();
+      const v=vs.find(v=>v.voiceURI===E.stimme)||vs.find(v=>v.lang.toLowerCase().startsWith("de"));
+      if(v)u.voice=v;
+      u.onend=u.onerror=()=>res();speechSynthesis.speak(u);
+    }else res();
+  });
+}
+
+// ---------- Sitzung (jedes Mal anders) ----------
 let lauf=null;
 const warte=ms=>new Promise(r=>setTimeout(r,ms));
 async function sitzung(){
-const my=lauf={stop:false,pause:false,rest:E.dauer*60,thema:E.themen[0]||"selbstvertrauen"};
-const sec=()=>my.rest;
-const ende=()=>my.stop;
-async function w(s){for(let r=s;r>0&&!ende();r-=0.2){await warte(200);if(!my.pause){my.rest-=0.2;if(my.rest<=0)return}}}
-async function sprich(t){
-if(!("speechSynthesis" in window))return;
-await new Promise(res=>{
-const u=new SpeechSynthesisUtterance(t);
-u.lang="de-DE";u.rate=schlafModus()?0.8:0.88;u.pitch=0.95;
-const v=speechSynthesis.getVoices().find(v=>v.voiceURI===E.stimme)||speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith("de"));
-if(v)u.voice=v;
-u.onend=u.onerror=res;my.res=res;speechSynthesis.speak(u);
-});
+  const my=lauf={stop:false,pause:false,rest:E.dauer*60};
+  const schlaf=schlafModus(),ende=()=>my.stop,sec=()=>my.rest;
+  const tempo=zw(0.85,1.25);
+  const pause=(schlaf?12:(E.dauer<=10?6:8))*tempo;
+  async function w(s){for(let r=s;r>0&&!ende();r-=0.2){await warte(200);if(!my.pause){my.rest-=0.2;if(my.rest<=0)return}}}
+  async function zeile(t,p){
+    if(ende())return;
+    $("satz").style.opacity=0;await warte(300);$("satz").textContent=t;$("satz").style.opacity=1;
+    pegel(0.4,0.8);await sprich(t,my);pegel(0.8,0.8);await w(p);
+  }
+  pakLaden(E.stimme);
+  await w(zw(4,9));
+  for(const z of wahl(schlaf?TEXTE.einstiegSchlaf:TEXTE.einstieg)){if(ende())return;await zeile(z,zw(4,6.5))}
+  let vorrat=[],letzter="",n=0,naechsteLuecke=Math.floor(zw(3,6)),echos=[];
+  while(!ende()&&sec()>30){
+    if(!vorrat.length){vorrat=mischen(saetze());if(vorrat.length>1&&vorrat[0]===letzter)vorrat.push(vorrat.shift())}
+    let s=vorrat.shift();
+    if(echos.length&&echos[0].in<=0){s=echos.shift().s}
+    echos.forEach(e=>e.in--);
+    letzter=s;
+    if(Math.random()<0.22)await zeile(wahl(TEXTE.bruecke),zw(1.5,3));
+    const r=Math.random(),wdh=schlaf?(r<0.5?1:2):(r<0.25?1:r<0.8?2:3);
+    for(let d=0;d<wdh&&!ende()&&sec()>30;d++)await zeile(s,d<wdh-1?pause*0.65:pause*1.1);
+    if(Math.random()<0.25&&sec()>120)echos.push({s,in:Math.floor(zw(3,6))});
+    n++;
+    if(n>=naechsteLuecke&&sec()>75){
+      n=0;naechsteLuecke=Math.floor(zw(3,7));
+      const a=Math.random();
+      if(a<0.45){await zeile(wahl(schlaf?TEXTE.atemSchlaf:TEXTE.atem),zw(7,13))}
+      else if(a<0.8){$("satz").textContent="";await w(zw(15,32))}
+    }
+  }
+  if(ende())return;
+  await zeile(wahl(schlaf?TEXTE.schlussSchlaf:TEXTE.schluss),2);
+  pegel(0,8);await w(8);
+  beenden();
 }
-async function zeile(t,pause){
-if(ende())return;
-$("satz").style.opacity=0;await warte(300);$("satz").textContent=t;$("satz").style.opacity=1;
-pegel(0.4,0.8);await sprich(t);pegel(0.8,0.8);await w(pause);
-}
-await w(6);
-for(const z of EINSTIEG){if(ende())return;await zeile(z,5)}
-const pause=schlafModus()?12:(E.dauer<=10?6:8);
-let vorrat=[],n=0;
-while(!ende()&&sec()>30){
-if(!vorrat.length)vorrat=saetze().sort(()=>Math.random()-.5);
-const s=vorrat.shift();
-for(let d=0;d<2&&!ende()&&sec()>30;d++)await zeile(s,d?pause:pause*0.7);
-if(++n%4===0&&sec()>75){$("satz").textContent="";await w(18+Math.random()*10)}
-}
-if(ende())return;
-await zeile(schlafModus()?SCHLUSS_SCHLAF:SCHLUSS,2);
-pegel(0,8);await w(8);
-beenden();
-}
+
+// ---------- Start / Pause / Ende ----------
 function stillerTon(){
-// iPhone: Web-Audio wird vom Stumm-Schalter gedämpft, solange kein Audio-Element läuft.
-try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
-try{
-if(!stillEl){
-const n=8000,b=new Uint8Array(44+n),v=new DataView(b.buffer),t=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
-t(0,"RIFF");v.setUint32(4,36+n,true);t(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
-v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);t(36,"data");v.setUint32(40,n,true);
-b.fill(128,44);
-stillEl=new Audio("data:audio/wav;base64,"+btoa(String.fromCharCode(...b)));stillEl.loop=true;
+  // iPhone: Web-Audio wird vom Stumm-Schalter gedämpft, solange kein Audio-Element läuft.
+  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+  try{
+    if(!stillEl){
+      const n=8000,b=new Uint8Array(44+n),v=new DataView(b.buffer),t=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
+      t(0,"RIFF");v.setUint32(4,36+n,true);t(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+      v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);t(36,"data");v.setUint32(40,n,true);
+      b.fill(128,44);
+      stillEl=new Audio("data:audio/wav;base64,"+btoa(String.fromCharCode(...b)));stillEl.loop=true;
+    }
+    stillEl.play().catch(()=>{});
+  }catch(e){}
 }
-stillEl.play().catch(()=>{});
-}catch(e){}
-}
-let stillEl=null;
+let stillEl=null,wakeLock=null;
 async function starten(){
-if(!saetze().length)return;
-// Muss direkt im Tipp passieren (iPhone sperrt Sprache sonst):
-stillerTon();
-if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}
-$("spieler").style.background=`linear-gradient(${THEMEN[E.themen[0]||"selbstvertrauen"].f.join(",")})`;
-$("spieler").classList.add("an");
-klangStart(E.klang);
-try{if(navigator.wakeLock)wakeLock=await navigator.wakeLock.request("screen")}catch(e){}
-if("mediaSession"in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Affirmationen"});navigator.mediaSession.setActionHandler("pause",pause);navigator.mediaSession.setActionHandler("play",pause)}
-const t=setInterval(()=>{if(!lauf){clearInterval(t);return}
-const s=Math.max(0,Math.ceil(lauf.rest)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
-$("zeit").textContent=(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");},500);
-sitzung();
+  if(!saetze().length)return;
+  // Alles Wichtige direkt im Tipp (iPhone sperrt sonst Sprache und Ton):
+  stillerTon();
+  if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}
+  const erstes=E.themen[0]||"selbstvertrauen";
+  $("spieler").style.background=`linear-gradient(${THEMEN[erstes].f.join(",")})`;
+  $("spieler").classList.add("an");
+  klangStart(E.klang,THEMEN[erstes].beat);
+  try{if(navigator.wakeLock)wakeLock=await navigator.wakeLock.request("screen")}catch(e){}
+  if("mediaSession"in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Affirmationen"});navigator.mediaSession.setActionHandler("pause",pause);navigator.mediaSession.setActionHandler("play",pause)}
+  const t=setInterval(()=>{if(!lauf){clearInterval(t);return}
+    const s=Math.max(0,Math.ceil(lauf.rest)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+    $("zeit").textContent=(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");},500);
+  sitzung();
 }
-let wakeLock=null;
 function pause(){
-if(!lauf)return;
-lauf.pause=!lauf.pause;
-if(lauf.pause){speechSynthesis.pause();ctx&&ctx.suspend()}else{speechSynthesis.resume();ctx&&ctx.resume()}
-$("pause").textContent=lauf.pause?"▶":"❚❚";
+  if(!lauf)return;
+  lauf.pause=!lauf.pause;
+  if(lauf.pause){try{speechSynthesis.pause()}catch(e){}ctx&&ctx.suspend()}else{try{speechSynthesis.resume()}catch(e){}ctx&&ctx.resume()}
+  $("pause").textContent=lauf.pause?"▶":"❚❚";
 }
 function beenden(){
-if(lauf){lauf.stop=true;if(lauf.res)lauf.res();lauf=null}
-speechSynthesis.cancel();klangStop();if(stillEl)stillEl.pause();
-if(ctx&&ctx.state==="suspended")ctx.resume();
-try{wakeLock&&wakeLock.release()}catch(e){}
-$("spieler").classList.remove("an");$("pause").textContent="❚❚";$("satz").textContent="";
+  if(lauf){lauf.stop=true;lauf=null}
+  try{if(aktuellerClip)aktuellerClip.stop()}catch(e){}
+  aktuellerClip=null;if(sprechRes){sprechRes();sprechRes=null}
+  try{speechSynthesis.cancel()}catch(e){}
+  klangStop();if(stillEl)stillEl.pause();
+  if(ctx&&ctx.state==="suspended")ctx.resume();
+  try{wakeLock&&wakeLock.release()}catch(e){}
+  $("spieler").classList.remove("an");$("pause").textContent="❚❚";$("satz").textContent="";
 }
 $("start").onclick=starten;$("pause").onclick=pause;$("stop").onclick=beenden;
 </script>
