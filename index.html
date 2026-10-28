@@ -432,11 +432,11 @@ function stillerTon(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{
     if(!stillEl){
-      const n=8000,b=new Uint8Array(44+n),v=new DataView(b.buffer),t=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
+      const n=44100,b=new Uint8Array(44+n),v=new DataView(b.buffer),t=(o,s)=>[...s].forEach((c,i)=>b[o+i]=c.charCodeAt(0));
       t(0,"RIFF");v.setUint32(4,36+n,true);t(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
-      v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);t(36,"data");v.setUint32(40,n,true);
-      b.fill(128,44);
-      stillEl=new Audio("data:audio/wav;base64,"+btoa(String.fromCharCode(...b)));stillEl.loop=true;
+      v.setUint32(24,22050,true);v.setUint32(28,44100,true);v.setUint16(32,2,true);v.setUint16(34,16,true);t(36,"data");v.setUint32(40,n,true);
+      for(let i=0;i<n/2;i++)v.setInt16(44+i*2,(i%2?1:-1),true);
+      stillEl=new Audio("data:audio/wav;base64,"+btoa(Array.from(b,c=>String.fromCharCode(c)).join("")));stillEl.loop=true;
     }
     stillEl.play().catch(()=>{});
   }catch(e){}
@@ -445,8 +445,8 @@ let stillEl=null,wakeLock=null;
 async function starten(){
   if(!saetze().length)return;
   // Alles Wichtige direkt im Tipp (iPhone sperrt sonst Sprache und Ton):
-  stillerTon();
-  if("speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}
+  audioStart();stillerTon();
+  try{const q=ctx.createBufferSource();q.buffer=ctx.createBuffer(1,1,22050);q.connect(ctx.destination);q.start(0)}catch(e){}
   const erstes=E.themen[0]||"selbstvertrauen";
   $("spieler").style.background=`linear-gradient(${THEMEN[erstes].f.join(",")})`;
   $("spieler").classList.add("an");
@@ -457,6 +457,7 @@ async function starten(){
   const t=setInterval(()=>{if(!lauf){clearInterval(t);return}
     const s=Math.max(0,Math.ceil(lauf.rest)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
     $("zeit").textContent=(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");},500);
+  setTimeout(()=>{if(lauf&&ctx&&ctx.state!=="running"){ctx.resume();$("satz").textContent="Ton gesperrt ("+ctx.state+"). Stumm-Schalter aus? Tippe ▶."}},1500);
   sitzung();
 }
 function pause(){
